@@ -13,13 +13,30 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, you'd validate credentials against a backend
-    if (username === "teste" && password === "123") {
-      router.push("/products")
-    } else {
-      alert("Invalid credentials")
+  
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      })
+  
+      const data = await response.json()
+  
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid credentials")
+      }
+  
+      localStorage.setItem("auth_token", data.token) 
+      router.push("/products") 
+    } catch (error: unknown) {
+      alert(error.message)
     }
   }
+  
+  
 
   return (
     <Card className="w-[350px]">
