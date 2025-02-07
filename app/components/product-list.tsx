@@ -1,10 +1,38 @@
-import { getProducts, deleteProduct, updateProduct } from "../actions/product-actions"
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from "react"
 
-export default async function ProductList() {
-  const products = await getProducts()
+type Product = {
+  id: number
+  name: string
+  price: number
+}
+
+type Props = {
+  initialProducts: Product[]
+  updateProduct: (id: number, updates: Partial<Product>) => Promise<Product | null>
+  deleteProduct: (id: number) => Promise<void>
+}
+
+export default function ProductList({ initialProducts, updateProduct, deleteProduct }: Props) {
+  const [products, setProducts] = useState<Product[]>(initialProducts)
+
+  async function handleUpdate(id: number, formData: FormData) {
+  const price = Number.parseFloat(formData.get("price") as string)
+  const updatedProduct = await updateProduct(id, { price })
+
+  if (updatedProduct) {
+    setProducts((prev) => prev.map((p) => (p.id === id ? updatedProduct : p)))
+  }
+}
+  async function handleDelete(id: number) {
+    await deleteProduct(id)
+    setProducts((prev) => prev.filter((p) => p.id !== id))
+  }
+
 
   return (
     <Table>
@@ -24,19 +52,17 @@ export default async function ProductList() {
               <form className="flex items-center space-x-2">
                 <Input type="number" name="price" defaultValue={product.price} className="w-24" min="0" step="0.01" />
                 <Button
-                  formAction={async (formData: FormData) => {
-                    "use server"
-                    const price = formData.get("price")
-                    await updateProduct(product.id, { price: Number.parseFloat(price as string) })
+                  onClick={async (event) => {
+                    event.preventDefault()
+                    const formData = new FormData(event.currentTarget.closest("form") as HTMLFormElement)
+                    await handleUpdate(product.id, formData)
                   }}
                 >
                   Update
                 </Button>
                 <Button
-                  formAction={async () => {
-                    "use server"
-                    await deleteProduct(product.id)
-                  }}
+                  type="button"
+                  onClick={() => handleDelete(product.id)}
                   variant="destructive"
                 >
                   Delete
