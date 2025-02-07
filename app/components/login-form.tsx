@@ -30,6 +30,8 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Input
+              id="input-username"
+              className="input"
               type="text"
               placeholder="Username"
               value={username}
@@ -39,7 +41,9 @@ export default function LoginForm() {
           </div>
           <div>
             <Input
+              id="input-password"
               type="password"
+              className="input"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
