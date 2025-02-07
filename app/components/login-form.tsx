@@ -32,7 +32,11 @@ export default function LoginForm() {
       localStorage.setItem("auth_token", data.token) 
       router.push("/products") 
     } catch (error: unknown) {
-      alert(error.message)
+      if (error instanceof Error) {
+        alert(error.message)
+      } else {
+        alert("An unknown error occurred")
+      }
     }
   }
   
